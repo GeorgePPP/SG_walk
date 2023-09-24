@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 # Specify the directory containing the XLSX files
-xlsx_directory = 'OneDrive_2023-08-30\Partcipants wise conslidated'
+xlsx_directory = r'C:\Users\User\Desktop\SG_walk\Participant wise accelerometer data'
 
 # Iterate through each file in the directory
 for filename in os.listdir(xlsx_directory):
