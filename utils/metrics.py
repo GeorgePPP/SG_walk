@@ -5,9 +5,9 @@ import data_cleaning
 
 class metrics:
     def __init__(self, fp) -> None:
-        self.games = ['Arctic Punch', 'Fruit Ninja', 'Piano Step']
-        self.weeks = ['week1', 'week2', 'week3', 'week4']
         self.df = data_cleaning.extractData(pd.read_csv(fp, encoding='unicode_escape'))
+        self.weeks = self.df['Week'].unique()
+        self.games = self.df['Game_Type'].unique()
 
     def getJson(self):
         output = {}
@@ -82,11 +82,3 @@ class metrics:
                     total_kcal = kcal_per_hour * duration
                     calorie_count_dict[game][week]= round(total_kcal, 2)
         return calorie_count_dict
-    
-# def main():
-#     participant_no = 30
-#     motion_file = r'OneDrive_2023-08-30\Partcipants wise conslidated\Participant ' + str(participant_no) + r'.csv'
-#     result = metrics(motion_file)
-#     print(result.getJson())
-
-# main()
