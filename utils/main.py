@@ -1,5 +1,7 @@
 import metrics
 import pandas as pd
+from tqdm import tqdm
+import numpy as np
 
 def flourishing(row):
     emotion = row[["Q1", "Q2", "Q3", "Q4"]]
@@ -39,21 +41,21 @@ def moderate(row):
 def main():
     # Specify participants playing game or exercise
     participant_game_ls = list(range(1, 31)) + [31, 32, 33, 34, 35, 36, 37, 38, 40, 42, 47, 54]
-    pariticpant_exer_ls = list(range(1, 56)) - participant_game_ls
+    participant_game_ls.remove(19)
+    participant_game_ls.remove(24)
+    participant_game_ls.remove(27)
+    participant_game_ls.remove(8)
+    participant_game_ls.remove(35)
+    print(participant_game_ls)
+
+    # pariticpant_exer_ls = list(range(1, 56)) - participant_game_ls
 
     # Read motion, survey, demographic files
-    motion_file = r'C:\Users\User\Desktop\SG_walk\Participant wise accelerometer data\Participant ' + str(participant_game_ls[0]) + r'.csv'
-    survey_data = pd.read_csv(r'Mental Health data (Including condition 3&4).csv', encoding='unicode-escape')
+    survey_data = pd.read_csv(r'C:\Users\User\Desktop\SG_walk\Mental Health data (Including condition 3&4).csv', encoding='unicode-escape')
     demographic_data = pd.read_csv(r"C:\Users\User\Desktop\SG_walk\Demographic.csv", encoding='unicode-escape')
-    participant_motion = metrics.metrics(motion_file) # A dictionary
-
-    # Get data for motion metrics
-    action_result = participant_motion.getActionCount()
-    calorie_result = participant_motion.getCalorieCount()
-    max_acc_result = participant_motion.getMaxAcceleration()
 
     # Initialize empty list for dataframe
-    participant_ids = []
+    participant_ids = []  
     weeks = []
     games = []
     max_acc = []
@@ -65,9 +67,6 @@ def main():
     emotional = []
     psychological = []
     social = [] 
-    languishing = []
-    flourishing = []
-    moderate = []
 
     # Demographic data
     grouping = []
@@ -77,21 +76,31 @@ def main():
     edu = []
     selfses = []
     
-
-    for participant in participant_game_ls:
+    print("Retrieving data for paticipant: ")
+    for participant in tqdm(participant_game_ls):
+        print("{} \n".format(participant))
         # Loop through the data dictionary and extract the information
-        demographic_row = demographic_data[demographic_data['ID'] == participant].iloc[0]
+        # Get data for motion metrics
+        motion_file = r'C:\Users\User\Desktop\SG_walk\Participant wise acceleromter data\Participant ' + str(participant) + r'.csv'
+        participant_motion = metrics.metrics(motion_file) # A dictionary
+        action_result = participant_motion.getActionCount()
+        calorie_result = participant_motion.getCalorieCount()
+        max_acc_result = participant_motion.getMaxAcceleration()
+        demographic_row = demographic_data[demographic_data['id'] == participant].iloc[0]
         for game, game_data in action_result.items():
             for week, result in game_data.items():
-                survey_row = survey_data[(survey_data['Participant ID'] == participant) & (survey_data['Week'] == week)].iloc[0]
-                if isinstance(week, int):
-                    weeks.append(week)
+                print("Participant: {}; Week: {}".format(participant, week))
+                if not isinstance(week, np.int64) and not isinstance(week, int):
+                    int_week = (int([*week][-1]))
                 else:
-                    weeks.append(int([*week][-1]))
+                    int_week = week
+                string_week = week
+                survey_row = survey_data[(survey_data['Participant ID'] == participant) & (survey_data['Week'] == int_week)].iloc[0]
+                weeks.append(int_week)
                 games.append(game)
-                calories_burnt.append(calorie_result[game][week])
-                action_count.append(action_result[game][weeks])
-                max_acc.append(max_acc_result[game][week])
+                calories_burnt.append(calorie_result[game][string_week])
+                action_count.append(action_result[game][string_week])
+                max_acc.append(max_acc_result[game][string_week])
                 participant_ids.append(participant)
 
                 # Append demographic data from the stored row
@@ -109,34 +118,28 @@ def main():
                 psychological.append(survey_row['Psychological'])
                 social.append(survey_row['Social'])
 
-                #TODO: Add logic for languishing, flourishing, moderate row
-
-
-
                 
-
-
-
-                
-
-
-                
-    
-
     # Create a DataFrame from the extracted data
     motion_df = pd.DataFrame({
         "Participant ID": participant_ids,
         "Week": weeks,
         "Game": games,
         "Calories Burnt": calories_burnt,
-        "Action Count": action_count
+        "Action Count": action_count,
+        "Max Acceleration": max_acc,
+        "Grouping": grouping,
+        "Gender": gender,
+        "Age": age,
+        "Income": income,
+        "Education": edu,
+        "SelfSES": selfses,
+        "Companion": companion,
+        "Emotional": emotional,
+        "Psychological": psychological,
+        "Social": social
     })
 
-    # Extract and prepare data from the survey file
-    survey_df = participant_survey.copy()
-    merged_df = motion_df.merge(survey_df, on=['Participant ID', 'Week'], how='left')
+    motion_df.to_csv(r'C:\Users\User\Desktop\SG_walk\cache_data\all_participant.csv')
 
-    merged_df.to_csv('Participant_'+str(participant_no)+'_data.csv')
-    
 if __name__ == "__main__":
     main()
