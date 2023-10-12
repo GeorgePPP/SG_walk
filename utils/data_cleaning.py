@@ -25,23 +25,13 @@ def extractData(df):
     # Calculate magnitude of acceleration
     df['total acceleration'] = np.sqrt(df['Acceleration_X_g']**2 + df['Acceleration_Y_g']**2 + df['Acceleration_Z_g']**2)
 
-    # Create a new DataFrame with intended columns
-    new_df = df[['Week', 'Label', 'Game_Type', 'total acceleration']].copy()
-
-    # Convert ChipTime to datetime and get UTC timestamp
-    # new_df['ChipTime_UTC'] = pd.to_datetime(new_df['SysTime'], format='%m/%d/%Y %H:%M')
-
-    # Sort the DataFrame by ChipTime_UTC
-    # new_df.sort_values(by='ChipTime_UTC', inplace=True) 
+    if 'Game_Type' in df.columns:
+        # Create a new DataFrame with intended columns
+        new_df = df[['Week', 'Game_Type', 'total acceleration']].copy()
+    else:
+        new_df = df[['Week', 'total acceleration']].copy()
 
     # Reset the index of the DataFrame
     new_df.reset_index(drop=True, inplace=True)
-
-    # Drop the original ChipTime column
-    # new_df.drop(columns='SysTime', inplace=True)
-
-    # new_df['ChipTime_UTC'] = pd.to_datetime(new_df['ChipTime_UTC'])
-    
-    # new_df['ChipTime_UTC'] = new_df['ChipTime_UTC'].dt.strftime('%d %b')
 
     return new_df
