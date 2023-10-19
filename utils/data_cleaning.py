@@ -29,7 +29,8 @@ def extractData(df):
         # Create a new DataFrame with intended columns
         new_df = df[['Week', 'Game_Type', 'total acceleration']].copy()
     else:
-        new_df = df[['Week', 'total acceleration']].copy()
+        df['Game_Type'] = 'Exercise'
+        new_df = df[['Week', 'Game_Type', 'total acceleration']].copy()
 
     # Reset the index of the DataFrame
     new_df.reset_index(drop=True, inplace=True)
