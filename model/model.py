@@ -6,6 +6,9 @@ from sklearn.inspection import permutation_importance
 import pipeline  # Import your custom pipeline module
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from sklearn import svm
+from tqdm import tqdm
+import time
 
 def load_data(file_path):
     # Load the dataset from the given file path
@@ -70,12 +73,16 @@ if __name__ == '__main__':
 
     # Define the models and their names
     models = {
-        'RandomForest': RandomForestClassifier(),
-        'Naive Bayes' : GaussianNB(),
-        'Logistic Regression': LogisticRegression(max_iter=20)
+        # 'Random Forest': RandomForestClassifier(),
+        # 'Naive Bayes' : GaussianNB(),
+        # 'Logistic Regression': LogisticRegression(max_iter=20, solver='liblinear'),
+        'Support Vector Machine': svm.SVC(C=100, kernel='linear')
     }
 
-    for model_name, model in models.items():
+    for model_name, model in tqdm(models.items()):
+        start_time = time.time()
+        print("\n")
+        print("Training model {}".format(model_name))
         X = df.drop(['flourishing', 'moderate'], axis=1)
         y = df['flourishing']
 
@@ -96,7 +103,10 @@ if __name__ == '__main__':
             # Perform cross-validation
             mean_cv_score, std_cv_score = perform_cross_validation(selected_features, y, model, cv=5, scoring='accuracy')
 
+        end_time = time.time()
+        time_taken = end_time - start_time
         print("-----------Evaluation of {} model-----------".format(model))
+        print(f"Time taken for training: {time_taken}")
         print(f"Model: {model_name}")
         print(f"Accuracy: {accuracy}")
         print("Confusion Matrix:\n", conf_matrix)
