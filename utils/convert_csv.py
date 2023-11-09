@@ -2,19 +2,25 @@ import os
 import pandas as pd
 
 # Specify the directory containing the XLSX files
-xlsx_directory = r'C:\Users\User\Desktop\SG_walk\Participant wise accelerometer data'
+dir = r'C:\Users\User\Desktop\SG_walk\Participant wise accelerometer data (not consolidated)\Exercise consolidated'
 
 # Iterate through each file in the directory
-for filename in os.listdir(xlsx_directory):
+for filename in os.listdir(dir):
     if filename.endswith('.xlsx'):
         # Construct the full file paths
-        xlsx_file_path = os.path.join(xlsx_directory, filename)
-        csv_file_path = os.path.splitext(xlsx_file_path)[0] + '.csv'
-        
-        # Read the XLSX file using pandas
-        df = pd.read_excel(xlsx_file_path, engine='openpyxl')
-        
-        # Save the DataFrame as a CSV file
-        df.to_csv(csv_file_path, index=False, encoding='utf-8', sep=',')
+        fp = os.path.join(dir, filename)
+    
+        print("Converting {}".format(fp))
 
-print("Conversion complete.")
+        # Read the XLSX file using pandas
+        df = pd.read_excel(fp)
+
+        csv_filename = filename.replace(".xlsx", ".csv")
+        csv_fp = os.path.join(dir, csv_filename)
+
+        # Save the DataFrame as a CSV file
+        df.to_csv(csv_fp, index=False, encoding='utf-8', sep=',')
+
+        print("Converted {}".format(fp))
+
+print("Conversion  complete.")
