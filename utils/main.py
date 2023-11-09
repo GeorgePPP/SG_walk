@@ -54,46 +54,20 @@ def aggregateAll(result):
     return aggregated_value
 
 def main():
-    # Specify participants playing game or exercise
+    # Participants whose accelerations data are available
     participant_acc_ls = list(range(1, 56))
 
-    # Read motion, survey, demographic files
+    # These two csv files contain all participants' information
     survey_data = pd.read_csv(r'C:\Users\User\Desktop\SG_walk\Mental Health data (Including condition 3&4).csv', encoding='unicode-escape')
     demographic_data = pd.read_csv(r"C:\Users\User\Desktop\SG_walk\Demographic.csv", encoding='unicode-escape')
 
     # Filter the DataFrame based on 'Dropout condition' being equal to 0
     filtered_survey = survey_data[survey_data['Dropout condition'] == 0]
+
     # Get unique participant IDs from the filtered DataFrame
     participant_survey_ls = list(filtered_survey['Participant ID'].unique())
-
     participant_demo_ls = list(demographic_data['id'].unique())
     participant_ls = list(set(participant_acc_ls) & set(participant_demo_ls) & set(participant_survey_ls))
-
-    # agg_dict_survey = {
-    # 'Companion': 'first',
-    # 'Q1': 'mean',
-    # 'Q2': 'mean',
-    # 'Q3': 'mean',
-    # 'Q4': 'mean',
-    # 'Emotional': 'mean',
-    # 'Q5': 'mean',
-    # 'Q6': 'mean',
-    # 'Q7': 'mean',
-    # 'Q8': 'mean',
-    # 'Q9': 'mean',
-    # 'Q10': 'mean',
-    # 'Psychological': 'mean',
-    # 'Q11': 'mean',
-    # 'Q12': 'mean',
-    # 'Q13': 'mean',
-    # 'Q14': 'mean',
-    # 'Q15': 'mean',
-    # 'Social': 'mean',
-    # 'Dropout condition': 'first'
-    # }
-
-    # survey_data = survey_data.groupby(['Participant ID']).agg(agg_dict_survey).reset_index()
-    # print("Survey data has been aggregated into participant-specific data")
 
     # Initialize empty list for dataframe
     participant_ids = []  
@@ -123,7 +97,6 @@ def main():
     for participant in (participant_ls):
         print("Retrieving data for participant {}".format(participant))
         # Loop through the data dictionary and extract the information
-        # Get data for motion metrics
         motion_file = r'C:\Users\User\Desktop\SG_walk\Participant wise acceleromter data\Participant ' + str(participant) + r'.csv'
         participant_motion = metrics.metrics(motion_file) # A dictionary
         action_result = participant_motion.getActionCount()
