@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 def removeLowVar(df):
     # Define the threshold for low variability
@@ -20,10 +21,9 @@ def removeLowVar(df):
     return df.drop(df[low_variability_columns], axis=1)
     
 def oneHotEncode(df):
-    # If less than 10 unique values means categorical variable
     colsToEncode = []
     for col in df.columns:
-        if len(df[col].unique()) <= 10 and len(df[col].unique()) > 2:
+        if len(df[col].unique()) <= 10 and len(df[col].unique()) > 2: # Exclude continuous variables and binary variables
             colsToEncode.append(col)
 
     return pd.get_dummies(df, columns=colsToEncode, drop_first=True)
@@ -51,6 +51,18 @@ def upSample(df):
         print("The 'flourishing' column does not exist in the DataFrame.")
         return df  # Return the original DataFrame and frequencies
 
-    
+def scaleContVar(df):
+    colsToScale = []
+    for col in df.columns:
+        if len(df[col].unique()) > 10: # Exclude continuous variables and binary variables
+            colsToScale.append(col)
+
+    scaler = StandardScaler()
+    df[colsToScale] = scaler.fit_transform(df[colsToScale])
+
+    return df
+
+
+
 
  
