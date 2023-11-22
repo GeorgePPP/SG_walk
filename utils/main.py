@@ -70,6 +70,7 @@ def main():
     participant_ls = list(set(participant_acc_ls) & set(participant_demo_ls) & set(participant_survey_ls))
 
     # Initialize empty list for dataframe
+    # Motion data
     participant_ids = []  
     max_acc = []
     calories_burnt = []
@@ -78,7 +79,6 @@ def main():
     games = []
 
     # Survey data
-    companion = []
     emotional = []
     psychological = []
     social = []
@@ -87,36 +87,43 @@ def main():
     moder = []
 
     # Demographic data
-    grouping = []
+    alone = []
+    collab= []
+    peer = []
+    coach = []
     gender = []
     age = []
     income = []
     edu = []
     selfses = []
-    
+
     for participant in (participant_ls):
         print("Retrieving data for participant {}".format(participant))
-        # Loop through the data dictionary and extract the information
+
+        # Get motion metrics for this participant
         motion_file = r'C:\Users\User\Desktop\SG_walk\Participant wise acceleromter data\Participant ' + str(participant) + r'.csv'
         participant_motion = metrics.metrics(motion_file) # A dictionary
         action_result = participant_motion.getActionCount()
         calorie_result = participant_motion.getCalorieCount()
         max_acc_result = participant_motion.getMaxAcceleration()
+
+        # Extract information from the motion metrics
         for game in participant_motion.games:
             demographic_row = demographic_data[(demographic_data['id'] == participant)].iloc[0]
             for week in participant_motion.weeks:
+                # Get int value for 'week' column
                 if not isinstance(week, int):
                     int_week = (int([*week][-1]))
                 else:
                     int_week = week
-                # Check if there are rows that meet the condition
+                # Slice data for this 'participant' and 'week'
                 mask = (survey_data['Participant ID'] == participant) & (survey_data['Week'] == int_week)
                 if not survey_data.loc[mask].empty:
                     survey_row = survey_data.loc[mask].iloc[0]
                 else:
                     continue
-                # Create columns
-                # Append motion data
+
+                # Create columns for the dataframe
                 participant_ids.append(participant)
                 games.append(game)
                 weeks.append(int_week)
@@ -125,7 +132,10 @@ def main():
                 max_acc.append(round((max_acc_result[game][week]), 2))
 
                 # Append demographic data from the stored row
-                grouping.append(demographic_row['Grouping'])
+                alone.append(demographic_row['Game'])
+                collab.append(demographic_row['Collaboration'])
+                peer.append(demographic_row['Peer'])
+                coach.append(demographic_row['HealthCoach'])
                 gender.append(demographic_row['Gender'])
                 age.append(demographic_row['Age'])
                 income.append(demographic_row['Income'])
@@ -134,7 +144,6 @@ def main():
 
                 # Append survey data from the stored row
                 # (1 = elderly-health coach; 2 = elderly-elderly; 3 = elderly single; 4 = elderly exercise)
-                companion.append(survey_row['Companion'])
                 emotional.append(int(survey_row['Emotional']))
                 psychological.append(int(survey_row['Psychological']))
                 social.append(int(survey_row['Social']))
@@ -154,13 +163,15 @@ def main():
         "Calories Burnt": calories_burnt,
         "Action Count": action_count,
         "Max Acceleration": max_acc,
-        "Grouping": grouping,
+        "Alone": alone,
+        "Collaboration": collab,
+        "Peer": peer,
+        "HealthCoach": coach,
         "Gender": gender,
         "Age": age,
         "Income": income,
         "Education": edu,
         "SelfSES": selfses,
-        "Companion": companion,
         "Emotional": emotional,
         "Psychological": psychological,
         "Social": social,
@@ -169,9 +180,35 @@ def main():
         "moderate": moder,
     })
 
-    motion_df.to_csv(r'C:\Users\User\Desktop\SG_walk\cache_data\all_participant_1014.csv')
+    motion_df.to_csv(r'C:\Users\User\Desktop\SG_walk\cache_data\data.csv')
     print(motion_df)
 
 if __name__ == "__main__":
     main()
  
+# If aggregation is needed
+# agg_dict_survey = {
+# 'Companion': 'first',
+# 'Q1': 'mean',
+# 'Q2': 'mean',
+# 'Q3': 'mean',
+# 'Q4': 'mean',
+# 'Emotional': 'mean',
+# 'Q5': 'mean',
+# 'Q6': 'mean',
+# 'Q7': 'mean',
+# 'Q8': 'mean',
+# 'Q9': 'mean',
+# 'Q10': 'mean',
+# 'Psychological': 'mean',
+# 'Q11': 'mean',
+# 'Q12': 'mean',
+# 'Q13': 'mean',
+# 'Q14': 'mean',
+# 'Q15': 'mean',
+# 'Social': 'mean',
+# 'Dropout condition': 'first'
+# }
+
+# survey_data = survey_data.groupby(['Participant ID']).agg(agg_dict_survey).reset_index()
+# print("Survey data has been aggregated into participant-specific data")
