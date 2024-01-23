@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 
 def removeLowVar(df):
     # Define the threshold for low variability
-    threshold = 0.1  # Adjust this value as needed
+    threshold = 0.1
     # Initialize lists to store low-variability columns and their variances
     low_variability_columns = []
     variances = []
@@ -54,7 +54,7 @@ def upSample(df):
 def scaleContVar(df):
     colsToScale = []
     for col in df.columns:
-        if len(df[col].unique()) > 10: # Exclude continuous variables and binary variables
+        if len(df[col].unique()) > 2: # Exclude binary variables
             colsToScale.append(col)
 
     scaler = StandardScaler()
@@ -62,7 +62,17 @@ def scaleContVar(df):
 
     return df
 
+# This function filters out participants that have same wellbeing status for 4 weeks
+def filterSameParticipants(df):
+    participants = []
+    participants_ls = list(df['Participant ID'].unique())
 
+    for participant in participants_ls:
+        participants.append(participant)
+        flourishing = list(df[df['Participant ID'] == participant]['flourishing'])
+        moderate = list(df[df['Participant ID'] == participant]['moderate'])
+        if all(ele == flourishing[0] for ele in flourishing) and all(ele == moderate[0] for ele in moderate):
+            participants_ls.remove(participant)
 
-
- 
+    new_df = df[df['Participant ID'].isin(participants_ls)]
+    return new_df
